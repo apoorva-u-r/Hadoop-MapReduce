@@ -43,6 +43,7 @@ object MapReduceDriver {
     FileUtils.deleteDirectory(new File(outputFile+"2"));
     FileUtils.deleteDirectory(new File(outputFile+"3"));
     FileUtils.deleteDirectory(new File(outputFile+"4"));
+    FileUtils.deleteDirectory(new File(outputFile+"5"));
 
     val conf = new Configuration()
 
@@ -102,8 +103,19 @@ object MapReduceDriver {
     FileInputFormat.addInputPath(job4, new Path(inputFile))
     FileOutputFormat.setOutputPath(job4, new Path((outputFile+"4")))
 
-    if (job2.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job4.waitForCompletion(verbose)) {
-    //if (job3.waitForCompletion(verbose) && job4.waitForCompletion(verbose)) {
+    //Set Hadoop config parameters and start job
+    val job5 = Job.getInstance(conf, jobName4)
+    job5.setJarByClass(classOf[SortingMapper])
+    job5.setMapperClass(classOf[SortingMapper])
+    job5.setReducerClass(classOf[SortingReducer])
+    job5.setOutputKeyClass(classOf[DoubleWritable])
+    job5.setOutputValueClass(classOf[Text])
+    FileInputFormat.addInputPath(job5, new Path("output_dir3_clean"))
+    FileOutputFormat.setOutputPath(job5, new Path((outputFile+"5")))
+
+    //if (job2.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job4.waitForCompletion(verbose)) {
+    //if (job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
+    if (job5.waitForCompletion(verbose)) {
     println("Map/Reduce finished")
     } else {
       println("Error")
