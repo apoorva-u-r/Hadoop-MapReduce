@@ -35,7 +35,7 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
     val sum = coauthors.foldLeft(0.0) { (t,i) => t + i }
     val avg: Double = sum/coauthors.size.toDouble
 
-    LOG.debug("author: "+key+" max: "+max+" sum: "+sum+" avg: "+avg)
+    //LOG.debug("author: "+key+" max: "+max+" sum: "+sum+" avg: "+avg)
 
     val tempKey = key.toString
 

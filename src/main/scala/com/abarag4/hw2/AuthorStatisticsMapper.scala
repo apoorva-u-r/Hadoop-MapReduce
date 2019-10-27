@@ -20,7 +20,7 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
     numCoauthors.set(num) //or num-1?
 
     //Write output tuple (e.g. ("amedeo", 3))
-    LOG.debug("AuthorStatisticsMapper - OUTPUT: ("+author+", "+num+")")
+    //LOG.debug("AuthorStatisticsMapper - OUTPUT: ("+author+", "+num+")")
     context.write(authorKey, numCoauthors)
   }
 

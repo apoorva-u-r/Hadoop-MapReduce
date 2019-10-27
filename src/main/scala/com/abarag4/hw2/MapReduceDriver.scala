@@ -26,6 +26,9 @@ object MapReduceDriver {
 
   //Read input and output file paths from configuration file
   val inputFile: String = configuration.getString("configuration.inputFile")
+  val outputFile: String = configuration.getString("configuration.outputFile")
+
+  val SLASH: String = "/"
 
   def main(args: Array[String]): Unit = {
 
@@ -43,11 +46,11 @@ object MapReduceDriver {
     val jobName5 = configuration.getString("configuration.jobName5")
 
     //Delete output_dir each time the map/reduce is run
-    FileUtils.deleteDirectory(new File(jobName1));
-    FileUtils.deleteDirectory(new File(jobName2));
-    FileUtils.deleteDirectory(new File(jobName3));
-    FileUtils.deleteDirectory(new File(jobName4));
-    FileUtils.deleteDirectory(new File(jobName5));
+    //FileUtils.deleteDirectory(new File(jobName1));
+    //FileUtils.deleteDirectory(new File(jobName2));
+    //FileUtils.deleteDirectory(new File(jobName3));
+    //FileUtils.deleteDirectory(new File(jobName4));
+    //FileUtils.deleteDirectory(new File(jobName5));
 
     val conf: Configuration = new Configuration()
 
@@ -69,7 +72,7 @@ object MapReduceDriver {
     job1.setOutputValueClass(classOf[IntWritable])
     job1.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job1, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job1, new Path((jobName1)))
+    FileOutputFormat.setOutputPath(job1, new Path((outputFile+SLASH+jobName1)))
 
     //Set Hadoop config parameters and start job
     val job2 = Job.getInstance(conf, jobName2)
@@ -81,7 +84,7 @@ object MapReduceDriver {
     job2.setOutputValueClass(classOf[IntWritable])
     job2.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job2, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job2, new Path((jobName2)))
+    FileOutputFormat.setOutputPath(job2, new Path((outputFile+SLASH+jobName2)))
 
     //Set Hadoop config parameters and start job
     val job3 = Job.getInstance(conf, jobName3)
@@ -93,7 +96,7 @@ object MapReduceDriver {
     job3.setOutputValueClass(classOf[DoubleWritable])
     job3.setOutputFormatClass(classOf[TextOutputFormat[Text, DoubleWritable]])
     FileInputFormat.addInputPath(job3, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job3, new Path((jobName3)))
+    FileOutputFormat.setOutputPath(job3, new Path((outputFile+SLASH+jobName3)))
 
     //Set Hadoop config parameters and start job
     val job4 = Job.getInstance(conf, jobName4)
@@ -105,7 +108,7 @@ object MapReduceDriver {
     job4.setOutputValueClass(classOf[IntWritable])
     job4.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job4, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job4, new Path((jobName4)))
+    FileOutputFormat.setOutputPath(job4, new Path((outputFile+SLASH+jobName4)))
 
     //Set Hadoop config parameters and start job
     val job5 = Job.getInstance(conf, jobName5)
@@ -115,10 +118,10 @@ object MapReduceDriver {
     job5.setOutputKeyClass(classOf[DoubleWritable])
     job5.setOutputValueClass(classOf[Text])
     FileInputFormat.addInputPath(job5, new Path(jobName3))
-    FileOutputFormat.setOutputPath(job5, new Path((jobName5)))
+    FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
 
     LOG.info("*** Starting Job(s) NOW ***")
-    if (job2.waitForCompletion(verbose) && job1.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
+    if (job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
       val endTime = System.nanoTime
       val totalTime = endTime - startTime
       LOG.info("*** FINISHED (Execution completed in: "+totalTime/1_000_000_000+" sec) ***")

@@ -16,7 +16,7 @@ class SortingReducer extends Reducer[DoubleWritable,Text,Text,DoubleWritable] {
 
   override def reduce(key: DoubleWritable, values: java.lang.Iterable[Text], context:Reducer[DoubleWritable,Text, Text, DoubleWritable]#Context): Unit = {
 
-    LOG.debug("SortingReducer: "+key)
+    //LOG.debug("SortingReducer: "+key)
 
     //Now handle each tuple individually, flip key and value again
     values.forEach(v => handleTuple(key, v, context))

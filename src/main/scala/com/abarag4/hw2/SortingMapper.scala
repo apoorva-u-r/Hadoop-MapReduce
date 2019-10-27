@@ -11,7 +11,7 @@ class SortingMapper extends Mapper[Object, Text, DoubleWritable,Text] {
   val valueWritable = new DoubleWritable()
 
   override def map(key:Object, value:Text, context:Mapper[Object,Text,DoubleWritable,Text]#Context): Unit = {
-    LOG.debug("SortingMapper: "+value)
+    //LOG.debug("SortingMapper: "+value)
 
     //Parse CSV here
     val inputTuple = value.toString.split(",").map(_.trim)

@@ -43,7 +43,11 @@ class VenueMapper extends Mapper[Object, Text, Text, IntWritable] {
       return
     }
 
-    bin.set(BinHelper.getBinFromCount(authors.size)+Constants.COMMA+itemType+Constants.COMMA+BinHelper.getBinForYears(year.text.toInt))
+    if (year.isEmpty || year.text == null || year.text.trim.length==0) {
+      bin.set(BinHelper.getBinFromCount(authors.size)+Constants.COMMA+itemType+Constants.COMMA+"None")
+    } else {
+      bin.set(BinHelper.getBinFromCount(authors.size)+Constants.COMMA+itemType+Constants.COMMA+BinHelper.getBinForYears(year.text.toInt))
+    }
 
     //Write output tuple (e.g. ("2-3<tab>article", 1))
     context.write(bin, one)
