@@ -151,23 +151,24 @@ public class XmlInputFormat extends TextInputFormat {
           return -1;
         }
 
+        //Over the stop point *** terminate ***
+        if (fsin.getPos() >= end) {
+          return -1;
+        }
+
         char c = (char)b;
 
         if (c == '<') {
           currentTag = new StringBuilder();
         }
 
-        //Over the stop point *** terminate ***
-        if (fsin.getPos() >= end) {
-          return -1;
-        }
-
         currentTag.append(c);
 
-        if ((c == '>' || c == ' ')) {
-          int position = returnEndTagPosition(currentTag.toString(), tags);
-          if (position!=-1) {
-            return position;
+        if ((c == ' ')) {
+          for (int j=0; j<tags.length; j++) {
+            if (tags[j].equals(currentTag.toString())) {
+              return j;
+            }
           }
         }
       }

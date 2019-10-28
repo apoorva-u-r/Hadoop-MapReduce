@@ -5,8 +5,13 @@ object BinHelper {
   //Start: x,0,1,1
   private def getBinFromCountImpl(count: Int, currentPass: Int, currentMin: Int, currentMax: Int): String = {
 
+    //Avoid StackOverFlow, this should never happen however. Check input params
+    if (currentMin>currentMax || count==0) {
+      return null
+    }
+
     //Override for output format reasons
-    if (count <= 1) {
+    if (count == 1) {
       return "1";
     }
 

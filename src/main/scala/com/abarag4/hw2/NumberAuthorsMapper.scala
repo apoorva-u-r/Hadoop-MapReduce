@@ -43,15 +43,37 @@ class NumberAuthorsMapper extends Mapper[Object, Text, Text, IntWritable] {
     //Look for author tags
     val authors = (xml \\ "author")
 
+    if (authors.nonEmpty) {
+      bin.set(BinHelper.getBinFromCount(authors.size))
+
+      //Write output tuple (e.g. ("2-3", 1))
+      context.write(bin, one)
+    }
+  }
+
+  /*
+
+   val pattern = "<author".r
+    val xmlString = value.toString
+
+    val authors = pattern findAllIn(xmlString)
+    val authorsSize = authors.toSeq.size
+
+    bin.set("COUNT")
+    one.set(authorsSize)
+    context.write(bin, one)
+
+    //LOG.debug("authorsSize: "+authorsSize)
     //Safety check, return immediately without adding tuples if no authors
-    if (authors.isEmpty) {
+    if (authorsSize<1) {
       return
     }
 
     //bin.set(authors.size.toString)
-    bin.set(BinHelper.getBinFromCount(authors.size))
+    bin.set(BinHelper.getBinFromCount(authorsSize))
 
     //Write output tuple (e.g. ("2-3", 1))
     context.write(bin, one)
-  }
+   */
+
 }

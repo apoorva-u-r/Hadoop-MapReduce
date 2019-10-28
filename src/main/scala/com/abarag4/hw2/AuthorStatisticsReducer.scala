@@ -1,6 +1,7 @@
 package com.abarag4.hw2
 
 import com.abarag4.hw2.MapReduceDriver.getClass
+import com.abarag4.hw2.helpers.StatisticsHelper
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.hadoop.io.{DoubleWritable, IntWritable, Text}
 import org.apache.hadoop.mapreduce.Reducer
@@ -32,8 +33,6 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
     val coauthors = valuesList.sorted
 
     val max = coauthors(coauthors.size-1) //max is last tuple since it's sorted
-    val sum = coauthors.foldLeft(0.0) { (t,i) => t + i }
-    val avg: Double = sum/coauthors.size.toDouble
 
     //LOG.debug("author: "+key+" max: "+max+" sum: "+sum+" avg: "+avg)
 
@@ -44,18 +43,14 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
     //Write max tuple
     context.write(key, value)
 
-    value.set(avg)
+    value.set(StatisticsHelper.computeAvg(coauthors))
     key.set(tempKey+",avg")
     //Write avg tuple
     context.write(key, value)
 
-    if (coauthors.length % 2 == 0) { //If array has even number of elements
-      val median = (coauthors(coauthors.length/2).toDouble + coauthors((coauthors.length/2)-1).toDouble) / 2.0
-      value.set(median)
-    } else { //Else array has odd number of elements, so we just get the element in the middle
-      val median = coauthors(coauthors.length/2).toDouble
-      value.set(median)
-    }
+    //Compute median
+    value.set(StatisticsHelper.computeMedian(coauthors))
+
     //Write median tuple
     key.set(tempKey+",med")
     context.write(key, value)

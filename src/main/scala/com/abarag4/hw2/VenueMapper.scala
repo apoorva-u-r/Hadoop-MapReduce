@@ -2,9 +2,13 @@ package com.abarag4.hw2
 
 import com.abarag4.hw2.helpers.BinHelper
 import com.typesafe.config.{Config, ConfigFactory}
+import javax.xml.parsers.SAXParserFactory
 import org.apache.hadoop.io.{IntWritable, Text}
 import org.apache.hadoop.mapreduce.Mapper
 import org.slf4j.{Logger, LoggerFactory}
+import javax.xml.parsers.SAXParserFactory
+
+import scala.xml.XML
 
 class VenueMapper extends Mapper[Object, Text, Text, IntWritable] {
 

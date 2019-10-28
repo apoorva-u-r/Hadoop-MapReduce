@@ -46,7 +46,7 @@ object MapReduceDriver {
     val jobName5 = configuration.getString("configuration.jobName5")
 
     //Delete output_dir each time the map/reduce is run
-    //FileUtils.deleteDirectory(new File(jobName1));
+    FileUtils.deleteDirectory(new File(outputFile));
     //FileUtils.deleteDirectory(new File(jobName2));
     //FileUtils.deleteDirectory(new File(jobName3));
     //FileUtils.deleteDirectory(new File(jobName4));
@@ -55,6 +55,8 @@ object MapReduceDriver {
     val conf: Configuration = new Configuration()
 
     //Set start and end tags for XmlInputFormat
+    //conf.set(XmlInputFormat.START_TAGS, startTags)
+    //conf.set(XmlInputFormat.END_TAGS, endTags)
     conf.set(XmlInputFormat.START_TAGS, startTags)
     conf.set(XmlInputFormat.END_TAGS, endTags)
 
@@ -117,11 +119,12 @@ object MapReduceDriver {
     job5.setReducerClass(classOf[SortingReducer])
     job5.setOutputKeyClass(classOf[DoubleWritable])
     job5.setOutputValueClass(classOf[Text])
-    FileInputFormat.addInputPath(job5, new Path(jobName3))
+    FileInputFormat.addInputPath(job5, new Path(outputFile+SLASH+jobName3))
     FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
 
     LOG.info("*** Starting Job(s) NOW ***")
     if (job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
+    //if (job1.waitForCompletion(verbose)) {
       val endTime = System.nanoTime
       val totalTime = endTime - startTime
       LOG.info("*** FINISHED (Execution completed in: "+totalTime/1_000_000_000+" sec) ***")
