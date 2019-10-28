@@ -14,9 +14,9 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
   val configuration: Config = ConfigFactory.load("configuration.conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
-  private def getNumOfCoAuthors(author: String, num: Int, context:Mapper[Object,Text,Text,IntWritable]#Context): Unit = {
+  private def getNumOfCoAuthors(author: String, itemType: String, num: Int, context:Mapper[Object,Text,Text,IntWritable]#Context): Unit = {
 
-    authorKey.set(author)
+    authorKey.set(author+Constants.COMMA+itemType)
     numCoauthors.set(num) //or num-1?
 
     //Write output tuple (e.g. ("amedeo", 3))
@@ -45,6 +45,7 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
 
     //Look for author tags
     val authors = (xml \\ "author")
+    val itemType = xml.child(0).label //"article"
 
     //Safety check, return immediately without adding tuples if no authors
     if (authors.isEmpty) {
@@ -52,6 +53,6 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
     }
 
     //For each author -> insert tuple
-    authors.foreach(author => getNumOfCoAuthors(author.text.toString, authors.size, context))
+    authors.foreach(author => getNumOfCoAuthors(author.text.toString, itemType, authors.size, context))
   }
 }

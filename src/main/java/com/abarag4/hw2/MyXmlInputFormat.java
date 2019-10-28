@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 /*
  * Please see: https://stackoverflow.com/questions/12639745/parsing-xmlinputformat-element-larger-than-hdfs-block-size/12683304#12683304
@@ -42,7 +43,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Reads records that are delimited by a specific begin/end tag.
  */
-public class XmlInputFormat extends TextInputFormat {
+public class MyXmlInputFormat extends TextInputFormat {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -92,8 +93,7 @@ public class XmlInputFormat extends TextInputFormat {
 
     private boolean next(LongWritable key, Text value) throws IOException {
 
-      int tag = -1;
-      if (fsin.getPos() < end && (tag=readUntilStartTag(startTags))!=-1) {
+      if (fsin.getPos() < end && readUntilStartTag2(startTags, false)) {
         try {
           buffer.write(startTags[tag].getBytes(StandardCharsets.UTF_8));
           if (readUntilMatch(endTags[tag].getBytes(StandardCharsets.UTF_8), true)) {
@@ -141,6 +141,63 @@ public class XmlInputFormat extends TextInputFormat {
      * @return position of matching start tag in tags array
      * @throws IOException
      */
+
+    private static Integer tag = null;
+    private boolean readUntilStartTag2(String[] tags, boolean withinBlock) throws IOException {
+
+      int[] tagIndexes = new int[tags.length];
+      //Fill with 0
+      for (int i=0; i<tagIndexes.length; i++) {
+        tagIndexes[i] = 0;
+      }
+
+      while (true) {
+        int b = fsin.read();
+        // end of file:
+        if (b == -1) {
+          return false;
+        }
+        // save to buffer:
+        if (withinBlock) {
+          buffer.write(b);
+        }
+
+        for (int j=0; j<tags.length; j++) {
+
+          String currentTag = tags[j];
+          byte[] currentTagBytes = currentTag.getBytes(Constants.UTF8());
+          int currenti = tagIndexes[j];
+
+          // check if we're matching:
+          if (b == currentTagBytes[currenti]) {
+            tagIndexes[j]++;
+            if (tagIndexes[j] >= currentTagBytes.length) {
+              tag = j;
+              return true;
+            }
+          } else {
+            tagIndexes[j] = 0;
+          }
+        }
+
+        // see if we've passed the stop point:
+        if (!withinBlock && fsin.getPos() >= end) {
+
+          int cc = 0;
+          for (int k=0; k<tags.length; k++) {
+            if (tagIndexes[k] == 0) {
+              cc++;
+            }
+          }
+
+          //They are all 0
+          if (cc==tags.length) {
+            return false;
+          }
+        }
+      }
+    }
+
     private int readUntilStartTag(String[] tags) throws IOException {
       StringBuilder currentTag = new StringBuilder();
 
@@ -159,6 +216,7 @@ public class XmlInputFormat extends TextInputFormat {
         char c = (char)b;
 
         if (c == '<') {
+          currentTag = null;
           currentTag = new StringBuilder();
         }
 
@@ -166,7 +224,8 @@ public class XmlInputFormat extends TextInputFormat {
 
         if ((c == ' ')) {
           for (int j=0; j<tags.length; j++) {
-            if (tags[j].equals(currentTag.toString())) {
+            if (currentTag.toString().contains(tags[j])) {
+              currentTag = null;
               return j;
             }
           }

@@ -39,6 +39,7 @@ object MapReduceDriver {
     val startTags = configuration.getString("configuration.startTags")
     val endTags = configuration.getString("configuration.endTags")
 
+    val jobName0 = configuration.getString("configuration.jobName0")
     val jobName1 = configuration.getString("configuration.jobName1")
     val jobName2 = configuration.getString("configuration.jobName2")
     val jobName3 = configuration.getString("configuration.jobName3")
@@ -55,21 +56,29 @@ object MapReduceDriver {
     val conf: Configuration = new Configuration()
 
     //Set start and end tags for XmlInputFormat
-    //conf.set(XmlInputFormat.START_TAGS, startTags)
-    //conf.set(XmlInputFormat.END_TAGS, endTags)
-    conf.set(XmlInputFormat.START_TAGS, startTags)
-    conf.set(XmlInputFormat.END_TAGS, endTags)
+    conf.set(MyXmlInputFormat.START_TAGS, startTags)
+    conf.set(MyXmlInputFormat.END_TAGS, endTags)
 
     //Format as CSV output
     conf.set("mapred.textoutputformat.separator", ",")
 
     //Set Hadoop config parameters and start job
+    val job0 = Job.getInstance(conf, jobName0)
+    job0.setJarByClass(classOf[XMLTupleCheckMapper])
+    job0.setMapperClass(classOf[XMLTupleCheckMapper])
+    job0.setReducerClass(classOf[AuthorReducer])
+    job0.setInputFormatClass(classOf[MyXmlInputFormat])
+    job0.setOutputKeyClass(classOf[Text])
+    job0.setOutputValueClass(classOf[IntWritable])
+    job0.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
+    FileInputFormat.addInputPath(job0, new Path(inputFile))
+    FileOutputFormat.setOutputPath(job0, new Path((outputFile+SLASH+jobName0)))
 
     val job1 = Job.getInstance(conf, jobName1)
     job1.setJarByClass(classOf[NumberAuthorsMapper])
     job1.setMapperClass(classOf[NumberAuthorsMapper])
     job1.setReducerClass(classOf[AuthorReducer])
-    job1.setInputFormatClass(classOf[XmlInputFormat])
+    job1.setInputFormatClass(classOf[MyXmlInputFormat])
     job1.setOutputKeyClass(classOf[Text])
     job1.setOutputValueClass(classOf[IntWritable])
     job1.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
@@ -81,7 +90,7 @@ object MapReduceDriver {
     job2.setJarByClass(classOf[VenueMapper])
     job2.setMapperClass(classOf[VenueMapper])
     job2.setReducerClass(classOf[AuthorReducer])
-    job2.setInputFormatClass(classOf[XmlInputFormat])
+    job2.setInputFormatClass(classOf[MyXmlInputFormat])
     job2.setOutputKeyClass(classOf[Text])
     job2.setOutputValueClass(classOf[IntWritable])
     job2.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
@@ -93,7 +102,7 @@ object MapReduceDriver {
     job3.setJarByClass(classOf[AuthorScoreMapper])
     job3.setMapperClass(classOf[AuthorScoreMapper])
     job3.setReducerClass(classOf[AuthorScoreReducer])
-    job3.setInputFormatClass(classOf[XmlInputFormat])
+    job3.setInputFormatClass(classOf[MyXmlInputFormat])
     job3.setOutputKeyClass(classOf[Text])
     job3.setOutputValueClass(classOf[DoubleWritable])
     job3.setOutputFormatClass(classOf[TextOutputFormat[Text, DoubleWritable]])
@@ -105,7 +114,7 @@ object MapReduceDriver {
     job4.setJarByClass(classOf[AuthorStatisticsMapper])
     job4.setMapperClass(classOf[AuthorStatisticsMapper])
     job4.setReducerClass(classOf[AuthorStatisticsReducer])
-    job4.setInputFormatClass(classOf[XmlInputFormat])
+    job4.setInputFormatClass(classOf[MyXmlInputFormat])
     job4.setOutputKeyClass(classOf[Text])
     job4.setOutputValueClass(classOf[IntWritable])
     job4.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
@@ -123,8 +132,8 @@ object MapReduceDriver {
     FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
 
     LOG.info("*** Starting Job(s) NOW ***")
-    if (job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
-    //if (job1.waitForCompletion(verbose)) {
+    if (job0.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
+    //if (job0.waitForCompletion(verbose)) {
       val endTime = System.nanoTime
       val totalTime = endTime - startTime
       LOG.info("*** FINISHED (Execution completed in: "+totalTime/1_000_000_000+" sec) ***")
