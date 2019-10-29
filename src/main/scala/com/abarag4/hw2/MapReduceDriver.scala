@@ -45,13 +45,10 @@ object MapReduceDriver {
     val jobName3 = configuration.getString("configuration.jobName3")
     val jobName4 = configuration.getString("configuration.jobName4")
     val jobName5 = configuration.getString("configuration.jobName5")
+    val jobName6 = configuration.getString("configuration.jobName6")
 
     //Delete output_dir each time the map/reduce is run
     FileUtils.deleteDirectory(new File(outputFile));
-    //FileUtils.deleteDirectory(new File(jobName2));
-    //FileUtils.deleteDirectory(new File(jobName3));
-    //FileUtils.deleteDirectory(new File(jobName4));
-    //FileUtils.deleteDirectory(new File(jobName5));
 
     val conf: Configuration = new Configuration()
 
@@ -131,8 +128,18 @@ object MapReduceDriver {
     FileInputFormat.addInputPath(job5, new Path(outputFile+SLASH+jobName3))
     FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
 
+    val job6 = Job.getInstance(conf, jobName6)
+    job6.setJarByClass(classOf[AuthorVenueStatisticsMapper])
+    job6.setMapperClass(classOf[AuthorVenueStatisticsMapper])
+    job6.setReducerClass(classOf[AuthorStatisticsReducer])
+    job6.setOutputKeyClass(classOf[Text])
+    job6.setOutputValueClass(classOf[IntWritable])
+    job6.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
+    FileInputFormat.addInputPath(job6, new Path(inputFile))
+    FileOutputFormat.setOutputPath(job6, new Path((outputFile+SLASH+jobName6)))
+
     LOG.info("*** Starting Job(s) NOW ***")
-    if (job0.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose)) {
+    if (job0.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose) && job6.waitForCompletion(verbose)) {
     //if (job0.waitForCompletion(verbose)) {
       val endTime = System.nanoTime
       val totalTime = endTime - startTime
