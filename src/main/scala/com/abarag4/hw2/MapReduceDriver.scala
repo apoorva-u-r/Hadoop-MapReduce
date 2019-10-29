@@ -132,6 +132,7 @@ object MapReduceDriver {
     job6.setJarByClass(classOf[AuthorVenueStatisticsMapper])
     job6.setMapperClass(classOf[AuthorVenueStatisticsMapper])
     job6.setReducerClass(classOf[AuthorStatisticsReducer])
+    job6.setInputFormatClass(classOf[MyXmlInputFormat])
     job6.setOutputKeyClass(classOf[Text])
     job6.setOutputValueClass(classOf[IntWritable])
     job6.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])

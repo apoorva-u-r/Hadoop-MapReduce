@@ -18,7 +18,7 @@ class XMLTupleCheckMapper extends Mapper[Object, Text, Text, IntWritable] {
 
     val valueStr = value.toString;
 
-    bin.set(valueStr.substring(0, 10))
+    bin.set(valueStr.substring(0, 5))
     context.write(bin, one)
 
     bin.set("COUNT")
