@@ -125,6 +125,8 @@ object MapReduceDriver {
     job5.setReducerClass(classOf[SortingReducer])
     job5.setOutputKeyClass(classOf[DoubleWritable])
     job5.setOutputValueClass(classOf[Text])
+    //Limit number of reducers to prevent part* splitting
+    job5.setNumReduceTasks(1)
     FileInputFormat.addInputPath(job5, new Path(outputFile+SLASH+jobName3))
     FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
 
