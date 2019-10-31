@@ -114,3 +114,8 @@ The charts/ folder in the repository root contains the charts obtained by follow
 grep and TupleChecker job
 
 ## Sorting algorithm using map/reduce
+
+
+## AWS EMR Deployment
+
+A YouTube video showing the AWS EMR deployment process is available here: https://www.youtube.com/watch?v=NwX04rRdOdo
