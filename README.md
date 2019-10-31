@@ -67,7 +67,50 @@ You may wish to deploy this homework on the HDP Sandbox in order to run it and t
 9. Exit from the SSH terminal, "exit"
 10. Copy the results to the host machine: scp -P 2222 -r root@sandbox-hdp.hortonworks.com:/root/output <local_path>
 
-Note: Depending on your DNS settings on the your host machine the hostname sandbox-hdp.hortonworks.com may fail to resolve, if this happens you can either add it to /etc/hosts or use the IP address of the Sandbox instead in the commands above.
+Note: Instead of just copying the data from HDFS, I recommend merging the output files.
+In order to do that, issue the following command: "hadoop fs -getmerge /output_dir/job_specific_dir/ <local_path>.
+You may list job specific output dirs by issuing: "hdfs dfs -ls output_dir".
+
+Additional note: Depending on your DNS settings on the your host machine the hostname sandbox-hdp.hortonworks.com may fail to resolve, if this happens you can either add it to /etc/hosts or use the IP address of the Sandbox instead in the commands above.
+
+## Map/Reduce jobs
+
+As part of this homework a total of 6 map/reduce jobs were created.
+Those are listed below by job name, the relevant classes have intuitive matching names. The association between the classes involved and each job is clearly listed in the MapReduceDriver class.
+
+* XMLTupleChecker: This job checks that the parsing of the XML file is done corrently by the XMLInputFormat class. See the specific section for more details.
+* NumberAuthors: This job bins the publications by number of authors. The output tuples have the following format: (bin, number of pub). (e.g. (2-3, 10))
+* AuthorVenue: This job bins the publications by number of authors, venue (article, phdthesis, etc..) and year of publication. Tuples have a composite key, while their value is the number of publications that fit into that category.
+* AuthorScore: This job maps each author to their authorship score. The output tuples have the following format: (AuthorName, AuthorshipScore)
+* AuthorScoreOrdered: This job sorts the authors by authorship score using the map/reduce framework. It depends on the previous job and the output tuples are the same, but sorted.
+* AuthorStatistics: This job produces the max, avg and median of the number of co-authors for each author in the dataset.
+* AuthorVenueStatistics: This job produces the max, avg and median of the number of co-authors for each author and each publication venue (article, phdthesis, etc..) in the dataset.
+
+## Results: Creating charts
+
+Upon completion of the map/reduce jobs the output is produced in csv format. The different jobs put output data in job specific directories.
+If you have previously merged the output files (recommended) you shall now have one output file for each job. You are required to name the files appropriately.
+
+From now on, we assume that the files will be named as job_specific_dir.txt, for example, for the first job listed above the job specific directory is: number_authors, so the output, when merged, should be called: number_authors.txt
+If different names are used changes will need to be made in the relevant files.
+
+### Requirements to plot charts
+
+* Python notebooks (Jupyter or JupyterLab installed. Installation instructions here: https://jupyterlab.readthedocs.io/en/stable/getting_started/installation.html
+* Pandas library for Python notebooks. Instructions here: https://pandas.pydata.org/pandas-docs/stable/install.html
+* PyPlot for Python notebooks. Instructions here: https://matplotlib.org/3.1.1/users/installing.html
+
+In order to create charts an industry-standard tool in the data science world has been used: Pandas.
+A Python notebook with the relevant code can be found in the "Graphs.ipynb" file in the repository root folder, the following instructions explain how to run it:
+
+1. Make sure that the requirements listed above have been installed.
+2. Open Jupyter or JupyterLab and drag the Graphs.ipynb to open it.
+3. Copy the output files from the map/reduce jobs in the same folder as the .ipynb file.
+4. Click on "Run" -> "Run all cells".
+
+The charts/ folder in the repository root contains the charts obtained by following the procedure above.
 
 ## Verify the parsing results
 grep and TupleChecker job
+
+## Sorting algorithm using map/reduce
