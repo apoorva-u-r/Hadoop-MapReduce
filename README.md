@@ -10,7 +10,7 @@ The hadoop framework has been extensively used as part of this homework.
 ## Requirements
 
 * HDP Sandbox (https://www.cloudera.com/downloads/hortonworks-sandbox.html) imported in VMWare. Please read the documentation present on the cloudera.com website for instruction on how to set up and configure the Sandbox.
-* A copy of the dblp.xml file.
+* A copy of the dblp.xml file is available in the input_dir folder. (This folder needs to be created in the root folder of the project)
 * ssh and scp installed and working on the host system.
 
 ### Test setup
@@ -31,6 +31,7 @@ This section contains the instructions on how to run the simulations implemented
 6. You may now go to src/main/scala/com.abarag4/ where you can find the main rap/reduce driver class: MapReduceDriver. A run configuration is automatically created when you click the green arrow next to the main method of the driver class.
 
 Note: All the required dependencies have been included in the build.sbt and plugins.sbt files. In case dependencies can't be found, check that the maven URLs are still current.
+Note (input data): The input .xml file needs to be copied in the input_dir folder, otherwise the job execution will fail.
 
 #### Alternative: SBT from CLI
 
@@ -41,6 +42,7 @@ If you don't want to use an IDE, you may run this project from the command line 
 3. Run the code: "sbt clean compile run"
 
 Note: "sbt clean compile run" performs a local execution of the map/reduce jobs. The jobs are run in sequence, you may wish to read the next section on how to assemble an actual jar.
+Note (input data): The input .xml file needs to be copied in the input_dir folder, otherwise the job execution will fail.
 
 #### Creating a JAR file
 
@@ -86,7 +88,7 @@ Those are listed below by job name, the relevant classes have intuitive matching
 * AuthorStatistics: This job produces the max, avg and median of the number of co-authors for each author in the dataset.
 * AuthorVenueStatistics: This job produces the max, avg and median of the number of co-authors for each author and each publication venue (article, phdthesis, etc..) in the dataset.
 
-## Results: Creating charts
+## Results: Creating charts & Top/Bottom 100 list
 
 Upon completion of the map/reduce jobs the output is produced in csv format. The different jobs put output data in job specific directories.
 If you have previously merged the output files (recommended) you shall now have one output file for each job. You are required to name the files appropriately.
@@ -110,12 +112,42 @@ A Python notebook with the relevant code can be found in the "Graphs.ipynb" file
 
 The charts/ folder in the repository root contains the charts obtained by following the procedure above.
 
-## Verify the parsing results
-grep and TupleChecker job
+Note: Make sure that the file names match those listed in the python notebook source code, if you use different names you may need to change them.
 
-## Sorting algorithm using map/reduce
+## Sorting algorithm using map/reduce & Top/Bottom 100 lists
 
+The sorting algorithm is implemented through the map/reduce framework, this provides high-level parallelism and relies on the framework to perform the sorting operation, instead of doing so manually.
+A map/reduce job is dedicated to perform sorting of the tuples produced by the AuthorScore job; it resolves around the key observation that the Hadoop framework sorts the keys of the tuples in descending order by default during the shuffling operation (between Map and Reduce).
+Therefore, in the Mapper function we flip the tuple key with its value and viceversa. e.g. (Key, Value) -> (Value, Key); while in the Reducer we perform the flip again, restoring the correct placement of keys and values.
+
+This allows us to obtain a list of sorted (Author, score) tuples; furthermore by imposing a restriction on the number of reducers (number of reducers = 1) we are able to obtain a single ordered list in csv format. (instead of multiple part* files)
+
+#### Top 100/Bottom 100 lists
+
+We can now rely on the widely available Unix tools "head" and "tail" to cut the output csv and create a list of only the first 100 and last 100 authors.
+In order to do this, proceed as follows:
+
+1. Open the terminal app and go to the directory that contains the output file
+2. Run the following command: "head -n 100 output_file > bottom_100.txt"
+3. Run the following command: "tail -n 100 output_file > top_100.txt"
+
+The resulting lists of the top and bottom 100 authors by authorship score have been saved in the files: "bottom_100.txt" and "top_100.txt".
 
 ## AWS EMR Deployment
 
 A YouTube video showing the AWS EMR deployment process is available here: https://www.youtube.com/watch?v=NwX04rRdOdo
+
+## Verify the parsing results
+
+A big chunk of this homework is writing a working XML parser, such utility class is not present in the Hadoop framework by default;
+An implementation by Apache Mahout is present at the following URL: https://github.com/apache/mahout/blob/758cfada62556d679c445416dff9d9fb2a3c4e59/community/mahout-mr/integration/src/main/java/org/apache/mahout/text/wikipedia/XmlInputFormat.java
+
+However, this implementation does not support multiple starting tags and it therefore requires extensive changes; this is why the problem of verifying the correctness of such implementation becomes relevant.
+In order to tacke such issues a specific map/reduce job "TupleChecker" has been created, this job has the purpose of producting partial counts of all the top tags present in the XML file (such as: article, phdthesis, www, etc..) so that they can be compared with the results obtained from "grep" on Unix.
+
+The following procedure briefly outlines how to do so:
+
+1. Run the TupleChecker map/reduce job on the entire dataset or on a subset of it.
+2. Open a terminal and move to the folder in which the dblp.xml file is stored.
+3. Issue grep commands such as: "grep -ri '<article' dblp.xml | wc -l" for each of the tags returned by the TupleChecker job.
+4. Confirm that the results match.
