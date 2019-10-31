@@ -88,6 +88,36 @@ Those are listed below by job name, the relevant classes have intuitive matching
 * AuthorStatistics: This job produces the max, avg and median of the number of co-authors for each author in the dataset.
 * AuthorVenueStatistics: This job produces the max, avg and median of the number of co-authors for each author and each publication venue (article, phdthesis, etc..) in the dataset.
 
+### File splitting
+
+Firstly, the input XML file is split in data chunks, this is done on a filesystem level by HDFS with a default chunk size of 128 MB.
+On a logical level the Hadoop framework provides the InputSplit concept, however, the MyXMLInputFormat custom class (Apache Mahout is used as a starting point, but extensive modifications have been made) embeds the logic to correctly split XML files.
+
+The default TextInputFormat provided by the framework splits files line-by-line, this is not acceptable for XML as the minimum logical unit of an XML file is a tag.
+The custom made MyXMLInputFormat class enforces exactly that by producing splits so that XML tags are never cut in different parts.
+
+The way the MyXMLInputFormat works is by allowing splits as little as a single XML outer tag (e.g. article, phdthesis, etc..).
+
+It is important to point out, however, that this doesn't translate in a number of mappers equal to the number of XML outer tags present in the file.
+This is because the number of mappers started, by default, actually depends on how the data is split on the filesystem level. (e.g. 2.8 GB is about 21 mappers: 2800/128 = 21)
+
+### Input/Output Formats
+
+An important part of computing the required statistics through the map/reduce framework is defining the input/output formats for each of the map/reduce jobs one may wish to implement.
+
+The input of each mapper is a chunk of XML data containing XML outer tags. These XML tags have been obtained as described above through the use of the MyXMLInputFormat class.
+In particular we have input tuples as: (Object, Text). The key is a don't care here, while the Text contains XML data.
+
+The output tuples differ for the various jobs, in particular some jobs have joint keys (concat with , ) while others have simpler ones.
+The values depend of the specific task performed. Output tuples are as follows:
+
+* NumberAuthors -> Output tuple: (bin, num of publications) e.g. (2-3, 2516097).
+* AuthorVenue -> Output tuple: ((bin, venue, year), num of publications) e.g. ((1,article,1991-2000), 74737).
+* AuthorScore -> Output tuple: (author name, authorship score) e.g. (A Kitaygorodksy, 1.05).
+* AuthorScoreOrdered -> Input tuple: (author name, authorship score)  Output tuple: (author name, authorship score) but sorted.
+* AuthorStatistics -> Output tuple: ((author name, max/avg/med), statistic value) e.g. ((A Kitaygorodksy,max), 18.0), ((A Kitaygorodksy,avg), 9.5), ((A Kitaygorodksy,med), 9.5).
+* AuthorVenueStatistics -> Output tuple: ((author name, venue, max/avg/med), statistic value) e.g. ((A Clara Kanmani,article,max), 3.0), ((A Clara Kanmani,article,avg), 3.0), ((A Clara Kanmani,article,med), 3.0).
+
 ## Results: Creating charts & Top/Bottom 100 list
 
 Upon completion of the map/reduce jobs the output is produced in csv format. The different jobs put output data in job specific directories.
@@ -143,7 +173,7 @@ A big chunk of this homework is writing a working XML parser, such utility class
 An implementation by Apache Mahout is present at the following URL: https://github.com/apache/mahout/blob/758cfada62556d679c445416dff9d9fb2a3c4e59/community/mahout-mr/integration/src/main/java/org/apache/mahout/text/wikipedia/XmlInputFormat.java
 
 However, this implementation does not support multiple starting tags and it therefore requires extensive changes; this is why the problem of verifying the correctness of such implementation becomes relevant.
-In order to tacke such issues a specific map/reduce job "TupleChecker" has been created, this job has the purpose of producting partial counts of all the top tags present in the XML file (such as: article, phdthesis, www, etc..) so that they can be compared with the results obtained from "grep" on Unix.
+In order to tackle such issues a specific map/reduce job "TupleChecker" has been created, this job has the purpose of producting partial counts of all the top tags present in the XML file (such as: article, phdthesis, www, etc..) so that they can be compared with the results obtained from "grep" on Unix.
 
 The following procedure briefly outlines how to do so:
 
