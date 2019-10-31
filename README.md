@@ -103,14 +103,14 @@ If different names are used changes will need to be made in the relevant files.
 * PyPlot for Python notebooks. Instructions here: https://matplotlib.org/3.1.1/users/installing.html
 
 In order to create charts an industry-standard tool in the data science world has been used: Pandas.
-A Python notebook with the relevant code can be found in the "Graphs.ipynb" file in the repository root folder, the following instructions explain how to run it:
+A Python notebook with the relevant code can be found in the "Graphs.ipynb" file in the repository charts/ folder, the following instructions explain how to run it:
 
 1. Make sure that the requirements listed above have been installed.
 2. Open Jupyter or JupyterLab and drag the Graphs.ipynb to open it.
 3. Copy the output files from the map/reduce jobs in the same folder as the .ipynb file.
 4. Click on "Run" -> "Run all cells".
 
-The charts/ folder in the repository root contains the charts obtained by following the procedure above.
+The charts/ folder in the repository root also contains the charts obtained by following the procedure above.
 
 Note: Make sure that the file names match those listed in the python notebook source code, if you use different names you may need to change them.
 
