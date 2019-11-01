@@ -118,7 +118,18 @@ The values depend of the specific task performed. Output tuples are as follows:
 * AuthorStatistics -> Output tuple: ((author name, max/avg/med), statistic value) e.g. ((A Kitaygorodksy,max), 18.0), ((A Kitaygorodksy,avg), 9.5), ((A Kitaygorodksy,med), 9.5).
 * AuthorVenueStatistics -> Output tuple: ((author name, venue, max/avg/med), statistic value) e.g. ((A Clara Kanmani,article,max), 3.0), ((A Clara Kanmani,article,avg), 3.0), ((A Clara Kanmani,article,med), 3.0).
 
-## Results: Creating charts & Top/Bottom 100 list
+## Where to locate the results in the repository
+
+In this section the location of the results for each of the assigned tasks are given, so that the reader can easily find them in the repo. The .txt files are in csv format.
+
+* NumberAuthors: charts/number_authors.png, csv/results.zip -> number_authors.txt
+* AuthorVenue: charts/authorvenue1.png, charts/authorvenue2.png, csv/results.zip -> author_venue.txt
+* AuthorScore: csv/top_100.txt, csv/bottom_100.txt, csv/results.zip -> author_score_tuples.txt
+* AuthorScoreOrdered: csv/results.zip -> author_score_ordered.txt
+* AuthorStatistics: csv/results.zip -> author_statistics.txt
+* AuthorVenueStatistics: csv/results.zip -> author_venue_statistics.txt
+
+## Creating charts
 
 Upon completion of the map/reduce jobs the output is produced in csv format. The different jobs put output data in job specific directories.
 If you have previously merged the output files (recommended) you shall now have one output file for each job. You are required to name the files appropriately.
@@ -143,6 +154,9 @@ A Python notebook with the relevant code can be found in the "Graphs.ipynb" file
 The charts/ folder in the repository root also contains the charts obtained by following the procedure above.
 
 Note: Make sure that the file names match those listed in the python notebook source code, if you use different names you may need to change them.
+Note of stacked charts: Stacked charts are created by stacking on top of each other the columns by venue or year.
+This means that to obtain the total number for a certain bin one needs to sum each color in the bar starting from 0.
+In other words the bar shown for each color does not represent a percentage, but an asbolute value instead.
 
 ## Sorting algorithm using map/reduce & Top/Bottom 100 lists
 
