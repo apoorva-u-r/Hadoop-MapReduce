@@ -109,12 +109,23 @@ The input of each mapper is a chunk of XML data containing XML outer tags. These
 In particular we have input tuples as: (Object, Text). The key is a don't care here, while the Text contains XML data.
 
 The output tuples differ for the various jobs, in particular some jobs have joint keys (concat with , ) while others have simpler ones.
-The values depend of the specific task performed. Output tuples are as follows:
+The values depend of the specific task performed.
+
+Output tuples are as follows for mappers:
+
+* NumberAuthors -> Output tuple: (bin, 1) e.g. (2-3, 1).
+* AuthorVenue -> Output tuple: ((bin, venue, year), 1) e.g. ((1,article,1991-2000), 1).
+* AuthorScore -> Output tuple: (author name, authorship score) e.g. (A Kitaygorodksy, 1.05).
+* AuthorScoreOrdered -> Output tuple: (author name, authorship score).
+* AuthorStatistics -> Output tuple: (author name, num of co-authors).
+* AuthorVenueStatistics -> Output tuple: ((author name, venue), num of co-authors).
+
+Output tuples are as follows for reducers:
 
 * NumberAuthors -> Output tuple: (bin, num of publications) e.g. (2-3, 2516097).
 * AuthorVenue -> Output tuple: ((bin, venue, year), num of publications) e.g. ((1,article,1991-2000), 74737).
-* AuthorScore -> Output tuple: (author name, authorship score) e.g. (A Kitaygorodksy, 1.05).
-* AuthorScoreOrdered -> Input tuple: (author name, authorship score)  Output tuple: (author name, authorship score) but sorted.
+* AuthorScore -> Output tuple: (author name, sum(authorship score)) e.g. (A Kitaygorodksy, 1.05).
+* AuthorScoreOrdered -> Input tuple: (-, sum(authorship score), author name)  Output tuple: (author name, sum(authorship score)) but sorted.
 * AuthorStatistics -> Output tuple: ((author name, max/avg/med), statistic value) e.g. ((A Kitaygorodksy,max), 18.0), ((A Kitaygorodksy,avg), 9.5), ((A Kitaygorodksy,med), 9.5).
 * AuthorVenueStatistics -> Output tuple: ((author name, venue, max/avg/med), statistic value) e.g. ((A Clara Kanmani,article,max), 3.0), ((A Clara Kanmani,article,avg), 3.0), ((A Clara Kanmani,article,med), 3.0).
 
