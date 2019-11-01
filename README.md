@@ -154,6 +154,9 @@ A Python notebook with the relevant code can be found in the "Graphs.ipynb" file
 The charts/ folder in the repository root also contains the charts obtained by following the procedure above.
 
 Note: Make sure that the file names match those listed in the python notebook source code, if you use different names you may need to change them.
+Note of stacked charts: Stacked charts are created by stacking on top of each other the columns by venue or year.
+This means that to obtain the total number for a certain bin one needs to sum each color in the bar starting from 0.
+In other words the bar shown for each color does not represent a percentage, but an asbolute value instead.
 
 ## Sorting algorithm using map/reduce & Top/Bottom 100 lists
 
