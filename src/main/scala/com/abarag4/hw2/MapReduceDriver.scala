@@ -15,8 +15,20 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.{FileOutputFormat, TextOutputFormat}
 import org.slf4j.{Logger, LoggerFactory}
 
-/*
- * This class contains the Map/Reduce driver for task 1.
+
+/**
+ *
+ * This class contains the Map/Reduce driver for all the tasks assigned.
+ *
+ * The jobs implemented as the following:
+ * - TupleChecker (job0)
+ * - NumberAuthors (job1)
+ * - AuthorVenue (job2)
+ * - AuthorScore (job3)
+ * - AuthorScoreOrdered (job5)
+ * - AuthorStatistics (job4)
+ * - AuthorVenueStatistics (job6)
+ *
  */
 object MapReduceDriver {
 
@@ -27,8 +39,6 @@ object MapReduceDriver {
   //Read input and output file paths from configuration file
   val inputFile: String = configuration.getString("configuration.inputFile")
   val outputFile: String = configuration.getString("configuration.outputFile")
-
-  val SLASH: String = "/"
 
   def main(args: Array[String]): Unit = {
 
@@ -48,6 +58,7 @@ object MapReduceDriver {
     val jobName6 = configuration.getString("configuration.jobName6")
 
     //Delete output_dir each time the map/reduce is run
+    LOG.info("Deleting output directory..")
     FileUtils.deleteDirectory(new File(outputFile));
 
     val conf: Configuration = new Configuration()
@@ -57,9 +68,9 @@ object MapReduceDriver {
     conf.set(MyXmlInputFormat.END_TAGS, endTags)
 
     //Format as CSV output
-    conf.set("mapred.textoutputformat.separator", ",")
+    conf.set("mapred.textoutputformat.separator", Constants.COMMA)
 
-    //Set Hadoop config parameters and start job
+    //TupleChecker Job
     val job0 = Job.getInstance(conf, jobName0)
     job0.setJarByClass(classOf[XMLTupleCheckMapper])
     job0.setMapperClass(classOf[XMLTupleCheckMapper])
@@ -69,8 +80,9 @@ object MapReduceDriver {
     job0.setOutputValueClass(classOf[IntWritable])
     job0.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job0, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job0, new Path((outputFile+SLASH+jobName0)))
+    FileOutputFormat.setOutputPath(job0, new Path((outputFile+Constants.SLASH+jobName0)))
 
+    //NumberAuthors Job
     val job1 = Job.getInstance(conf, jobName1)
     job1.setJarByClass(classOf[NumberAuthorsMapper])
     job1.setMapperClass(classOf[NumberAuthorsMapper])
@@ -80,9 +92,9 @@ object MapReduceDriver {
     job1.setOutputValueClass(classOf[IntWritable])
     job1.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job1, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job1, new Path((outputFile+SLASH+jobName1)))
+    FileOutputFormat.setOutputPath(job1, new Path((outputFile+Constants.SLASH+jobName1)))
 
-    //Set Hadoop config parameters and start job
+    //AuthorVenue Job
     val job2 = Job.getInstance(conf, jobName2)
     job2.setJarByClass(classOf[VenueMapper])
     job2.setMapperClass(classOf[VenueMapper])
@@ -92,9 +104,9 @@ object MapReduceDriver {
     job2.setOutputValueClass(classOf[IntWritable])
     job2.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job2, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job2, new Path((outputFile+SLASH+jobName2)))
+    FileOutputFormat.setOutputPath(job2, new Path((outputFile+Constants.SLASH+jobName2)))
 
-    //Set Hadoop config parameters and start job
+    //AuthorScore Job
     val job3 = Job.getInstance(conf, jobName3)
     job3.setJarByClass(classOf[AuthorScoreMapper])
     job3.setMapperClass(classOf[AuthorScoreMapper])
@@ -104,9 +116,9 @@ object MapReduceDriver {
     job3.setOutputValueClass(classOf[DoubleWritable])
     job3.setOutputFormatClass(classOf[TextOutputFormat[Text, DoubleWritable]])
     FileInputFormat.addInputPath(job3, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job3, new Path((outputFile+SLASH+jobName3)))
+    FileOutputFormat.setOutputPath(job3, new Path((outputFile+Constants.SLASH+jobName3)))
 
-    //Set Hadoop config parameters and start job
+    //AuthorStatistics Job
     val job4 = Job.getInstance(conf, jobName4)
     job4.setJarByClass(classOf[AuthorStatisticsMapper])
     job4.setMapperClass(classOf[AuthorStatisticsMapper])
@@ -116,9 +128,9 @@ object MapReduceDriver {
     job4.setOutputValueClass(classOf[IntWritable])
     job4.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job4, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job4, new Path((outputFile+SLASH+jobName4)))
+    FileOutputFormat.setOutputPath(job4, new Path((outputFile+Constants.SLASH+jobName4)))
 
-    //Set Hadoop config parameters and start job
+    //AuthorScoreOrdered Job
     val job5 = Job.getInstance(conf, jobName5)
     job5.setJarByClass(classOf[SortingMapper])
     job5.setMapperClass(classOf[SortingMapper])
@@ -127,9 +139,10 @@ object MapReduceDriver {
     job5.setOutputValueClass(classOf[Text])
     //Limit number of reducers to prevent part* splitting
     job5.setNumReduceTasks(1)
-    FileInputFormat.addInputPath(job5, new Path(outputFile+SLASH+jobName3))
-    FileOutputFormat.setOutputPath(job5, new Path((outputFile+SLASH+jobName5)))
+    FileInputFormat.addInputPath(job5, new Path(outputFile+Constants.SLASH+jobName3))
+    FileOutputFormat.setOutputPath(job5, new Path((outputFile+Constants.SLASH+jobName5)))
 
+    //AuthorVenueStatistics Job
     val job6 = Job.getInstance(conf, jobName6)
     job6.setJarByClass(classOf[AuthorVenueStatisticsMapper])
     job6.setMapperClass(classOf[AuthorVenueStatisticsMapper])
@@ -139,7 +152,7 @@ object MapReduceDriver {
     job6.setOutputValueClass(classOf[IntWritable])
     job6.setOutputFormatClass(classOf[TextOutputFormat[Text, IntWritable]])
     FileInputFormat.addInputPath(job6, new Path(inputFile))
-    FileOutputFormat.setOutputPath(job6, new Path((outputFile+SLASH+jobName6)))
+    FileOutputFormat.setOutputPath(job6, new Path((outputFile+Constants.SLASH+jobName6)))
 
     LOG.info("*** Starting Job(s) NOW ***")
     if (job0.waitForCompletion(verbose) && job1.waitForCompletion(verbose) && job2.waitForCompletion(verbose) &&  job4.waitForCompletion(verbose) && job3.waitForCompletion(verbose) && job5.waitForCompletion(verbose) && job6.waitForCompletion(verbose)) {

@@ -9,6 +9,13 @@ class AuthorReducer extends Reducer[Text,IntWritable,Text,IntWritable] {
 
   /**
    *
+   * This is the reducer used in the following jobs:
+   * - TupleChecker
+   * - NumberAuthors (NumberAuthorsMapper)
+   * - AuthorVenue (VenueMapper)
+   *
+   * The reducer sums the values in the values array and returns a tuple with the format (key, sum of values)
+   *
    * @param key Key for which tuples handled by this reducer are grouped.
    * @param values List of values of the tuples sent to this reducer with key "key".
    * @param context Output stream

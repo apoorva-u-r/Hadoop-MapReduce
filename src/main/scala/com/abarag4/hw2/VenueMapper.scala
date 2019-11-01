@@ -10,6 +10,10 @@ import javax.xml.parsers.SAXParserFactory
 
 import scala.xml.XML
 
+/**
+ * This is the Mapper used in the following jobs:
+ * - AuthorVenue
+ */
 class VenueMapper extends Mapper[Object, Text, Text, IntWritable] {
 
   val one = new IntWritable(1)
@@ -20,6 +24,10 @@ class VenueMapper extends Mapper[Object, Text, Text, IntWritable] {
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   /**
+   *
+   * This Mapper is responsible for creating tuples for the AuthorVenue job.
+   * The created tuples have a composite key: bin,venue and year.
+   * The value is the number of publications matching the criteria specified in the key.
    *
    * @param key Input key -> generic object, never used
    * @param value Input value -> RAW XML input segment, full tag block. e.g. <article> ... </article>

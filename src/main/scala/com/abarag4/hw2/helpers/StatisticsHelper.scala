@@ -6,6 +6,8 @@ object StatisticsHelper {
 
   /**
    *
+   * This function computes the median given a sorted ListBuffer as input
+   *
    * @param array Sorted array on which to perform the median computation
    * @return median value
    */
@@ -20,6 +22,13 @@ object StatisticsHelper {
     }
   }
 
+  /**
+   *
+   * This function computes the average given a ListBuffer as input
+   *
+   * @param array Array on which to perform the average computation
+   * @return average value
+   */
   def computeAvg(array: ListBuffer[Int]): Double = {
     val sum = array.foldLeft(0.0) { (t,i) => t + i }
     val avg: Double = sum/array.size.toDouble

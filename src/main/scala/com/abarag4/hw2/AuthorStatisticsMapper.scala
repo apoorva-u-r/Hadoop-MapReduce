@@ -14,6 +14,14 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
   val configuration: Config = ConfigFactory.load("configuration.conf")
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
+  /**
+   *
+   * This helper function takes the author name as a String and the number of co-authors for that specific author and emits the related tuple.
+   *
+   * @param author Name of Author as String
+   * @param num Number of co-authors for author in first parameter
+   * @param context
+   */
   private def getNumOfCoAuthors(author: String, num: Int, context:Mapper[Object,Text,Text,IntWritable]#Context): Unit = {
 
     authorKey.set(author)
@@ -26,7 +34,10 @@ class AuthorStatisticsMapper extends Mapper[Object, Text, Text, IntWritable] {
 
   /**
    *
-   * @param key Input key -> generic object, never used
+   * This Mapper function invoked its helper function and returns tuples of the format: (Author, num of co-authors)
+   * It is used as the first step of the Statistics job, in the Reducer actual statistics will then be computed on a per-author basis.
+   *
+   * @param key Input key -> Don't care
    * @param value Input value -> RAW XML input segment, full tag block. e.g. <article> ... </article>
    * @param context Output stream
    */

@@ -12,6 +12,10 @@ import java.nio.file.Paths
 
 import scala.xml.XML
 
+/**
+ * This is the Mapper used in the following jobs:
+ * - NumberAuthors
+ */
 class NumberAuthorsMapper extends Mapper[Object, Text, Text, IntWritable] {
 
   val one = new IntWritable(1)
@@ -22,6 +26,8 @@ class NumberAuthorsMapper extends Mapper[Object, Text, Text, IntWritable] {
   val LOG: Logger = LoggerFactory.getLogger(getClass)
 
   /**
+   *
+   * This Mapper function computes tuple with the following format (bin, num of publications)
    *
    * @param key Input key -> generic object, never used
    * @param value Input value -> RAW XML input segment, full tag block. e.g. <article> ... </article>

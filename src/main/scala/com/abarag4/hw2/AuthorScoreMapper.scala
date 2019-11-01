@@ -6,6 +6,10 @@ import org.apache.hadoop.io.{DoubleWritable, IntWritable, Text}
 import org.apache.hadoop.mapreduce.Mapper
 import org.slf4j.{Logger, LoggerFactory}
 
+/**
+ * This is the Mapper used in the following jobs:
+ * - AuthorScore
+ */
 class AuthorScoreMapper extends Mapper[Object, Text, Text, DoubleWritable] {
 
   val score = new DoubleWritable
@@ -17,7 +21,7 @@ class AuthorScoreMapper extends Mapper[Object, Text, Text, DoubleWritable] {
 
   /**
    *
-   * This function iterates over authors, calls the Helper to compute the authorship score and adds the tuple to the result
+   * This function iterates over authors, calls the Helper to compute the authorship score and adds the tuple to the result.
    *
    * @param author Author name
    * @param position Author position
@@ -39,6 +43,15 @@ class AuthorScoreMapper extends Mapper[Object, Text, Text, DoubleWritable] {
     context.write(authorText, score)
   }
 
+  /**
+   *
+   * This mapper invokes the related helper function (handleAuthor) for each author found in the XML data segment.
+   * The output tuple has the following format (AuthorName, AuthorScore)
+   *
+   * @param key Don't care
+   * @param value XML data segment
+   * @param context
+   */
   override def map(key:Object, value:Text, context:Mapper[Object,Text,Text,DoubleWritable]#Context): Unit = {
 
     //Get dtd resource on filesystem

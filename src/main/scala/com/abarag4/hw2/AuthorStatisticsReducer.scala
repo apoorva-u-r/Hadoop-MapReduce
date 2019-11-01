@@ -9,6 +9,11 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.jdk.javaapi.CollectionConverters.asScala
 
+/**
+ * This is the Reducer used in the following jobs:
+ * - AuthorStatistics
+ * - AuthorVenueStatistics
+ */
 class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritable] {
 
   //Initialize Config and Logger objects from 3rd party libraries
@@ -18,6 +23,8 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
   val value = new DoubleWritable()
 
   /**
+   *
+   * This reducer takes tuples of the format (Author, List(num of co-authors)) and computes max, median and average statistics for each author. (Key)
    *
    * @param key Key for which tuples handled by this reducer are grouped.
    * @param values List of values of the tuples sent to this reducer with key "key".
@@ -32,6 +39,7 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
     //Sorted ListBuffer
     val coauthors = valuesList.sorted
 
+    //Compute max
     val max = coauthors(coauthors.size-1) //max is last tuple since it's sorted
 
     //LOG.debug("author: "+key+" max: "+max+" sum: "+sum+" avg: "+avg)
@@ -43,6 +51,7 @@ class AuthorStatisticsReducer extends Reducer[Text,IntWritable,Text,DoubleWritab
     //Write max tuple
     context.write(key, value)
 
+    //Compute average
     value.set(StatisticsHelper.computeAvg(coauthors))
     key.set(tempKey+",avg")
     //Write avg tuple

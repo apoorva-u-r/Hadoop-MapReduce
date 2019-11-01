@@ -5,8 +5,20 @@ import org.apache.hadoop.mapreduce.Reducer
 
 import scala.jdk.javaapi.CollectionConverters.asScala
 
+/**
+ * This is the Reducer used in the following jobs:
+ * - AuthorScore
+ */
 class AuthorScoreReducer extends Reducer[Text,DoubleWritable,Text,DoubleWritable] {
 
+  /**
+   * The reducer sums double values in the values array and returns a tuple with the format (key, sum of values)
+   * This is identical to the Reducer in the AuthorReducer class, but not Double values.
+   *
+   * @param key Key for which tuples handled by this reducer are grouped.
+   * @param values List of values of the tuples sent to this reducer with key "key".
+   * @param context Output stream
+   */
   override def reduce(key: Text, values: java.lang.Iterable[DoubleWritable], context:Reducer[Text, DoubleWritable, Text, DoubleWritable]#Context): Unit = {
 
     val initial: Double = 0.0
